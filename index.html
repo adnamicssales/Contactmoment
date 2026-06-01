@@ -236,6 +236,13 @@
       border-color: var(--accent-border);
     }
     .btn-secondary:hover { background: var(--accent-bg); }
+    .btn-copy {
+      background: transparent;
+      color: #059669;
+      border-color: #A7F3D0;
+    }
+    .btn-copy:hover { background: #ECFDF5; }
+    .btn-copy.copied { background: #ECFDF5; color: #059669; border-color: #6EE7B7; }
     .btn-primary {
       background: var(--accent);
       color: #fff;
@@ -371,6 +378,10 @@
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         Opslaan als bestand
       </button>
+      <button class="btn btn-copy" id="copy-btn" onclick="copyToClipboard()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        Kopiëren
+      </button>
       <button class="btn btn-primary" onclick="sendMail()">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
         Verzenden via e-mail
@@ -378,7 +389,7 @@
     </div>
   </div>
 
-  <p class="footer">geen data verstuurd &mdash; alles blijft op jouw apparaat</p>
+  <p class="footer">opent Outlook online &mdash; geen data opgeslagen</p>
 </div>
 
 <script>
@@ -465,6 +476,57 @@
     URL.revokeObjectURL(url);
   }
 
+  function copyToClipboard() {
+    const bedrijf  = document.getElementById('bedrijf').value.trim();
+    const contact  = document.getElementById('contact').value.trim();
+    const notitie  = document.getElementById('notitie').value.trim();
+    const deadline = document.getElementById('deadline').value;
+    const collega  = document.getElementById('collega-select');
+    const d365     = document.getElementById('d365-check').checked;
+    const collegaNaam = collega.options[collega.selectedIndex]?.text || '—';
+
+    if (!bedrijf || !contact) { showError('Vul minimaal het bedrijf en de contactpersoon in.'); return; }
+
+    const tekst =
+      'CONTACTMOMENT — ADNAMICS
+' +
+      '═══════════════════════════════════
+
+' +
+      'Bedrijf:          ' + (bedrijf || '—') + '
+' +
+      'Contactpersoon:   ' + (contact || '—') + '
+' +
+      'Datum:            ' + document.getElementById('datum-vandaag').value + '
+' +
+      'Afhandelen voor:  ' + formatDeadline(deadline) + '
+' +
+      'Toegewezen aan:   ' + collegaNaam + '
+
+' +
+      '--- Notitie ---
+
+' +
+      (notitie || '—') +
+      (d365 ? '
+
+--- Actie ---
+
+[ v ] Contactmoment invoeren D365' : '');
+
+    navigator.clipboard.writeText(tekst).then(() => {
+      const btn = document.getElementById('copy-btn');
+      btn.classList.add('copied');
+      btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Gekopieerd!';
+      setTimeout(() => {
+        btn.classList.remove('copied');
+        btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Kopiëren';
+      }, 2500);
+    }).catch(() => {
+      showError('Kopiëren niet gelukt. Probeer het opnieuw.');
+    });
+  }
+
   function sendMail() {
     const bedrijf  = document.getElementById('bedrijf').value.trim();
     const contact  = document.getElementById('contact').value.trim();
@@ -487,7 +549,8 @@
       (d365 ? '\n\n--- Actie ---\n\n[ v ] Contactmoment invoeren D365' : '')
     );
 
-    window.location.href = 'mailto:' + emailTo + '?subject=' + subject + '&body=' + body;
+    const outlookUrl = 'https://outlook.office.com/mail/deeplink/compose?to=' + encodeURIComponent(emailTo) + '&subject=' + subject + '&body=' + body;
+    window.open(outlookUrl, '_blank');
   }
 
   function toggleD365() {
