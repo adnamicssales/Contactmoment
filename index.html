@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nieuw contactmoment</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #F5F3EE;
+      --card: #FFFFFF;
+      --border: rgba(0,0,0,0.10);
+      --border-strong: rgba(0,0,0,0.20);
+      --text-primary: #1A1916;
+      --text-secondary: #6B6860;
+      --text-hint: #A8A59F;
+      --accent: #1D4ED8;
+      --accent-bg: #EEF2FF;
+      --accent-border: #C7D2FE;
+      --readonly-bg: #F5F3EE;
+      --input-bg: #FAFAF8;
+      --danger: #B91C1C;
+      --radius: 10px;
+      --radius-sm: 6px;
+      --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.06);
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1rem;
+      color: var(--text-primary);
+    }
+
+    .page {
+      width: 100%;
+      max-width: 580px;
+      animation: fadeUp 0.4s ease both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .header { margin-bottom: 1.5rem; padding-left: 2px; }
+    .header-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-hint);
+      margin-bottom: 4px;
+    }
+    .header h1 {
+      font-size: 22px;
+      font-weight: 500;
+      color: var(--text-primary);
+      line-height: 1.2;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      padding: 2rem;
+    }
+
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+
+    .field { display: flex; flex-direction: column; gap: 6px; }
+    .field.full { grid-column: 1 / -1; }
+
+    label {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      letter-spacing: 0.02em;
+    }
+
+    input, textarea, select {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      color: var(--text-primary);
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
+      width: 100%;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.10);
+      background: #fff;
+    }
+
+    input[readonly] {
+      background: var(--readonly-bg);
+      color: var(--text-secondary);
+      cursor: default;
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+    }
+    input[readonly]:focus { border-color: var(--border); box-shadow: none; }
+
+    input[type="date"] { font-family: 'DM Mono', monospace; font-size: 13px; }
+
+    textarea { resize: vertical; min-height: 120px; line-height: 1.65; }
+
+    /* Custom select with arrow */
+    .select-wrap { position: relative; }
+    .select-wrap select {
+      padding-right: 32px;
+      cursor: pointer;
+    }
+    .select-wrap::after {
+      content: '';
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 0; height: 0;
+      border-left: 4px solid transparent;
+      border-right: 4px solid transparent;
+      border-top: 5px solid var(--text-secondary);
+      pointer-events: none;
+    }
+
+    .hint { font-size: 11px; color: var(--text-hint); margin-top: 1px; }
+
+    .divider { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
+
+    .email-section {
+      background: var(--accent-bg);
+      border: 1px solid var(--accent-border);
+      border-radius: var(--radius-sm);
+      padding: 1rem 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .email-section label { color: var(--accent); }
+    .email-section .select-wrap select {
+      background: #fff;
+      border-color: var(--accent-border);
+      color: var(--text-primary);
+    }
+    .email-section .select-wrap select:focus { border-color: var(--accent); }
+
+    .selected-email {
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      color: var(--accent);
+      margin-top: 2px;
+      min-height: 16px;
+    }
+
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--input-bg);
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+      user-select: none;
+    }
+    .checkbox-row:hover { border-color: var(--border-strong); background: #fff; }
+    .checkbox-row input[type="checkbox"] {
+      width: 16px; height: 16px;
+      min-width: 16px;
+      padding: 0;
+      border: 1.5px solid var(--border-strong);
+      border-radius: 4px;
+      background: #fff;
+      cursor: pointer;
+      accent-color: var(--accent);
+      appearance: auto;
+      -webkit-appearance: auto;
+      box-shadow: none;
+    }
+    .checkbox-row input[type="checkbox"]:focus { box-shadow: 0 0 0 3px rgba(29,78,216,0.10); }
+    .checkbox-row.checked { border-color: var(--accent-border); background: var(--accent-bg); }
+    .checkbox-label {
+      font-size: 13px;
+      color: var(--text-primary);
+      cursor: pointer;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      margin-top: 1.5rem;
+      align-items: center;
+    }
+
+    .btn {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      border-radius: var(--radius-sm);
+      padding: 10px 18px;
+      cursor: pointer;
+      transition: all 0.15s;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      border: 1px solid transparent;
+    }
+    .btn-ghost {
+      background: transparent;
+      color: var(--text-secondary);
+      border-color: var(--border);
+    }
+    .btn-ghost:hover { background: var(--bg); color: var(--text-primary); }
+    .btn-secondary {
+      background: transparent;
+      color: var(--accent);
+      border-color: var(--accent-border);
+    }
+    .btn-secondary:hover { background: var(--accent-bg); }
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+      box-shadow: 0 1px 2px rgba(29,78,216,0.20);
+    }
+    .btn-primary:hover {
+      background: #1e40af;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(29,78,216,0.25);
+    }
+    .btn-primary:active { transform: translateY(0); }
+
+    .toast {
+      display: none;
+      margin-top: 1rem;
+      padding: 10px 14px;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      font-weight: 500;
+    }
+    .toast.error {
+      background: #FEF2F2;
+      border: 1px solid #FECACA;
+      color: var(--danger);
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 1.25rem;
+      font-size: 12px;
+      color: var(--text-hint);
+      font-family: 'DM Mono', monospace;
+    }
+
+    @media (max-width: 600px) {
+      body { padding: 1rem 0.75rem; align-items: flex-start; }
+      .page { max-width: 100%; }
+      .grid { grid-template-columns: 1fr; }
+      .card { padding: 1.25rem; border-radius: var(--radius); }
+      .header { margin-bottom: 1.25rem; }
+      .header h1 { font-size: 20px; }
+      input, textarea, select { font-size: 16px; } /* prevents iOS zoom */
+      input[readonly] { font-size: 14px; }
+      input[type="date"] { font-size: 16px; }
+      textarea { min-height: 100px; }
+      .actions { flex-direction: column-reverse; gap: 8px; }
+      .btn { width: 100%; justify-content: center; padding: 13px 18px; font-size: 15px; }
+      .actions { gap: 10px; }
+      .email-section { padding: 0.875rem 1rem; }
+      .footer { font-size: 11px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="page">
+  <div class="header">
+    <p class="header-label">Adnamics — CRM</p>
+    <h1>Nieuw contactmoment</h1>
+  </div>
+
+  <div class="card">
+    <div class="grid">
+
+      <div class="field">
+        <label for="bedrijf">Naam bedrijf</label>
+        <input type="text" id="bedrijf" placeholder="Bijv. Gras Horeca Groep" autocomplete="organization" />
+      </div>
+
+      <div class="field">
+        <label for="contact">Contactpersoon</label>
+        <input type="text" id="contact" placeholder="Voor- en achternaam" autocomplete="name" />
+      </div>
+
+      <div class="field">
+        <label for="datum-vandaag">Datum vandaag</label>
+        <input type="text" id="datum-vandaag" readonly tabindex="-1" />
+        <span class="hint">Automatisch ingevuld</span>
+      </div>
+
+      <div class="field">
+        <label for="deadline">Afhandelen voor</label>
+        <input type="date" id="deadline" />
+      </div>
+
+      <div class="field full">
+        <label for="notitie">Notitie</label>
+        <textarea id="notitie" placeholder="Vrij in te vullen — afspraken, follow-up, aandachtspunten..."></textarea>
+      </div>
+
+      <div class="field full">
+        <label as="span">Acties</label>
+        <label class="checkbox-row" id="d365-row" onclick="toggleD365()">
+          <input type="checkbox" id="d365-check" onclick="event.stopPropagation(); toggleD365()" />
+          <span class="checkbox-label">Contactmoment invoeren D365</span>
+        </label>
+      </div>
+
+    </div>
+
+    <hr class="divider" />
+
+    <div class="email-section">
+      <label for="collega-select">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px; margin-right:4px"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+        Verzenden naar
+      </label>
+      <div class="select-wrap">
+        <select id="collega-select" onchange="updateEmail()">
+          <option value="">— Kies een collega —</option>
+          <option value="stefan.half@adnamics.nl">Stefan Half</option>
+          <option value="kevin.leenards@adnamics.nl">Kevin Leenards</option>
+          <option value="rob.nooi@adnamics.nl">Rob Nooi</option>
+          <option value="vince.morsman@adnamics.nl">Vince Morsman</option>
+          <option value="emile.vanbuuringen@adnamics.nl">Emile van Buuringen</option>
+        </select>
+      </div>
+      <div class="selected-email" id="selected-email"></div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <div class="actions">
+      <button class="btn btn-ghost" onclick="resetForm()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+        Leegmaken
+      </button>
+      <button class="btn btn-secondary" onclick="downloadTxt()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Opslaan als bestand
+      </button>
+      <button class="btn btn-primary" onclick="sendMail()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+        Verzenden via e-mail
+      </button>
+    </div>
+  </div>
+
+  <p class="footer">geen data verstuurd &mdash; alles blijft op jouw apparaat</p>
+</div>
+
+<script>
+  function formatDate(d) {
+    const days = ['zondag','maandag','dinsdag','woensdag','donderdag','vrijdag','zaterdag'];
+    const months = ['januari','februari','maart','april','mei','juni','juli','augustus','september','oktober','november','december'];
+    return days[d.getDay()] + ' ' + d.getDate() + ' ' + months[d.getMonth()] + ' ' + d.getFullYear();
+  }
+
+  const today = new Date();
+  document.getElementById('datum-vandaag').value = formatDate(today);
+  document.getElementById('deadline').min = today.toISOString().split('T')[0];
+
+  function updateEmail() {
+    const sel = document.getElementById('collega-select');
+    const display = document.getElementById('selected-email');
+    display.textContent = sel.value || '';
+  }
+
+  function formatDeadline(val) {
+    if (!val) return '—';
+    const [y, m, d] = val.split('-');
+    const months = ['januari','februari','maart','april','mei','juni','juli','augustus','september','oktober','november','december'];
+    return parseInt(d) + ' ' + months[parseInt(m) - 1] + ' ' + y;
+  }
+
+  function showError(msg) {
+    const t = document.getElementById('toast');
+    t.className = 'toast error';
+    t.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>' + msg;
+    setTimeout(() => { document.getElementById('toast').className = 'toast'; }, 4000);
+  }
+
+  function downloadTxt() {
+    const bedrijf  = document.getElementById('bedrijf').value.trim();
+    const contact  = document.getElementById('contact').value.trim();
+    const notitie  = document.getElementById('notitie').value.trim();
+    const deadline = document.getElementById('deadline').value;
+    const collega  = document.getElementById('collega-select');
+    const d365     = document.getElementById('d365-check').checked;
+
+    if (!bedrijf || !contact) { showError('Vul minimaal het bedrijf en de contactpersoon in.'); return; }
+
+    const collegaNaam = collega.options[collega.selectedIndex]?.text || '—';
+
+    const tekst =
+      'CONTACTMOMENT — ADNAMICS
+' +
+      '═══════════════════════════════════
+
+' +
+      'Bedrijf:          ' + (bedrijf || '—') + '
+' +
+      'Contactpersoon:   ' + (contact || '—') + '
+' +
+      'Datum:            ' + document.getElementById('datum-vandaag').value + '
+' +
+      'Afhandelen voor:  ' + formatDeadline(deadline) + '
+' +
+      'Toegewezen aan:   ' + collegaNaam + '
+
+' +
+      '--- Notitie ---
+
+' +
+      (notitie || '—') +
+      (d365 ? '
+
+--- Actie ---
+
+[ v ] Contactmoment invoeren D365' : '') +
+      '
+
+═══════════════════════════════════
+' +
+      'Aangemaakt op ' + document.getElementById('datum-vandaag').value;
+
+    const blob = new Blob([tekst], { type: 'text/plain;charset=utf-8' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href     = url;
+    a.download = 'contactmoment_' + bedrijf.replace(/\s+/g, '_') + '.txt';
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function sendMail() {
+    const bedrijf  = document.getElementById('bedrijf').value.trim();
+    const contact  = document.getElementById('contact').value.trim();
+    const notitie  = document.getElementById('notitie').value.trim();
+    const deadline = document.getElementById('deadline').value;
+    const emailTo  = document.getElementById('collega-select').value;
+
+    if (!bedrijf || !contact) { showError('Vul minimaal het bedrijf en de contactpersoon in.'); return; }
+    if (!emailTo) { showError('Kies een collega om naar te verzenden.'); return; }
+
+    const subject = encodeURIComponent('Contactmoment – ' + bedrijf + ' (' + contact + ')');
+    const d365 = document.getElementById('d365-check').checked;
+    const body = encodeURIComponent(
+      'Bedrijf:          ' + bedrijf + '\n' +
+      'Contactpersoon:   ' + contact + '\n' +
+      'Datum:            ' + document.getElementById('datum-vandaag').value + '\n' +
+      'Afhandelen voor:  ' + formatDeadline(deadline) + '\n\n' +
+      '--- Notitie ---\n\n' +
+      (notitie || '—') +
+      (d365 ? '\n\n--- Actie ---\n\n[ v ] Contactmoment invoeren D365' : '')
+    );
+
+    window.location.href = 'mailto:' + emailTo + '?subject=' + subject + '&body=' + body;
+  }
+
+  function toggleD365() {
+    const cb = document.getElementById('d365-check');
+    const row = document.getElementById('d365-row');
+    cb.checked = !cb.checked;
+    row.classList.toggle('checked', cb.checked);
+  }
+
+  function resetForm() {
+    document.getElementById('bedrijf').value = '';
+    document.getElementById('contact').value = '';
+    document.getElementById('notitie').value = '';
+    document.getElementById('deadline').value = '';
+    document.getElementById('collega-select').value = '';
+    document.getElementById('selected-email').textContent = '';
+    document.getElementById('d365-check').checked = false;
+    document.getElementById('d365-row').classList.remove('checked');
+    document.getElementById('toast').className = 'toast';
+  }
+</script>
+
+</body>
+</html>
